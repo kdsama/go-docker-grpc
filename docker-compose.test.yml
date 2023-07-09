@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  iptest:
+    build:
+      context: .
+      dockerfile: ./go-ipRep/deploys/Dockerfile.test    
+    network_mode: host

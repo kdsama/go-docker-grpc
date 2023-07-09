@@ -1,0 +1,18 @@
+FROM golang:1.16.4-alpine AS src
+
+# Install git
+
+# Copy Repository
+WORKDIR /go/src
+COPY ./go-ipRep/go.mod .
+COPY ./go-ipRep/go.sum .
+RUN go mod download
+COPY ./go-ipRep ./
+
+# Build Go Binary
+
+RUN set -ex; \
+    CGO_ENABLED=0 GOOS=linux go build -o ./go-ipRep ./main.go;
+CMD ["./go-ipRep"]
+# Final image, no source code
+
