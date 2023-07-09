@@ -1,0 +1,2 @@
+A go file inside orchestrator that will add container on input and remove them as well 
+Better if this is a cli. 
