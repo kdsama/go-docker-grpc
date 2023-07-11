@@ -17,11 +17,12 @@
  */
 
 // Package main implements a client for Greeter service.
-package main
+package client
 
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
 	"time"
 
@@ -35,14 +36,14 @@ const (
 )
 
 var (
-	addr = flag.String("addr", "localhost:50051", "the address to connect to")
+	// addr = flag.String("addr", "localhost:50051", "the address to connect to")
 	name = flag.String("name", defaultName, "Name to greet")
 )
 
-func main() {
+func Run(addr string) {
 	flag.Parse()
 	// Set up a connection to the server.
-	conn, err := grpc.Dial(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -50,11 +51,18 @@ func main() {
 	c := pb.NewGreeterClient(conn)
 
 	// Contact the server and print out its response.
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-	r, err := c.SayHello(ctx, &pb.HelloRequest{Name: *name})
-	if err != nil {
-		log.Fatalf("could not greet: %v", err)
+	i := 0
+	for {
+		i++
+		ctx, _ := context.WithTimeout(context.Background(), time.Second)
+
+		r, err := c.SayHello(ctx, &pb.HelloRequest{Name: (fmt.Sprint(i))})
+		if err != nil {
+			log.Fatalf("could not greet: %v", err)
+		}
+		time.Sleep(2 * time.Second)
+
+		log.Printf("Greeting: %s", r.GetMessage())
 	}
-	log.Printf("Greeting: %s", r.GetMessage())
+
 }

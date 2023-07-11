@@ -1,7 +1,7 @@
 version: '2'
 
 services:
-  name:
+  servertest:
     build:
       context: .
       dockerfile: ./server/deploys/Dockerfile.test   
