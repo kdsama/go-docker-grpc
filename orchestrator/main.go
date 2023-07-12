@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"strings"
 
@@ -18,7 +19,8 @@ type dockercli struct {
 }
 
 const (
-	OUR_IMAGE = "go-docker-grpc_server"
+	IMAGE   = "go-docker-grpc_server"
+	NETWORK = "go-docker-grpc_server_backend"
 )
 
 func main() {
@@ -42,7 +44,12 @@ func main() {
 	case "add":
 		dc.addContainer()
 	case "delete":
-		dc.delete(args[3])
+		if len(args) == 4 {
+			dc.delete(args[3])
+		} else {
+			dc.delete("")
+		}
+
 	case "deleteAll":
 		dc.deleteAll()
 	}
@@ -63,10 +70,27 @@ func (dc *dockercli) addContainer() {
 }
 
 func (dc *dockercli) delete(containerID string) {
+	toDelete := containerID
 	if strings.Trim(containerID, " ") == "" {
-		log.Print("no containerID present, hence a random one will be ")
+		// delete a random one
+		containers, err := dc.ContainerList(context.Background(), types.ContainerListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		arr := []string{}
+		for _, con := range containers {
+			if con.Image == dc.image {
+				arr = append(arr, con.ID)
+
+			}
+		}
+		toDelete = arr[rand.Intn(len(arr))]
 	}
-	err := dc.ContainerRemove(context.Background(), containerID, types.ContainerRemoveOptions{})
+	err := dc.ContainerStop(context.Background(), toDelete, container.StopOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = dc.ContainerRemove(context.Background(), toDelete, types.ContainerRemoveOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}

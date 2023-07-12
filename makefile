@@ -15,3 +15,5 @@ test:
 	docker-compose -f docker-compose.test.yml down 
 add:
 	docker run -d --network=go-docker-grpc_backend go-docker-grpc_server 
+delete:
+	go run orchestrator/main.go delete go-docker-grpc_server
